@@ -12,8 +12,11 @@ import java.util.Map;
  * This class provides the service of converting language codes to their names.
  */
 public class LanguageCodeConverter {
+    private Map<String, String> languageMap; // Maps language codes to language names
+    private String[] languageCodes; // Stores language codes
+    private String[] languageNames; // Stores language names
+    private int size; // Keeps track of the number of languages loaded
 
-    // TODO Task: pick appropriate instance variables to store the data necessary for this class
 
     /**
      * Default constructor which will load the language codes from "language-codes.txt"
@@ -29,19 +32,30 @@ public class LanguageCodeConverter {
      * @throws RuntimeException if the resource file can't be loaded properly
      */
     public LanguageCodeConverter(String filename) {
+        languageMap = new HashMap<>();
 
         try {
             List<String> lines = Files.readAllLines(Paths.get(getClass()
                     .getClassLoader().getResource(filename).toURI()));
 
-            // TODO Task: use lines to populate the instance variable
-            //           tip: you might find it convenient to create an iterator using lines.iterator()
+            // Populate the map from the lines read
+            for (String line : lines) {
+                // Split by tab instead of comma
+                String[] parts = line.split("\t");
+                if (parts.length == 2) {
+                    String languageName = parts[0].trim();
+                    String languageCode = parts[1].trim();
+                    languageMap.put(languageCode, languageName);
+                } else {
+                    System.out.println("Invalid line: " + line); // Debug: Invalid line format
+                }
+            }
 
-        }
-        catch (IOException | URISyntaxException ex) {
+            // Debug: Print the number of languages loaded
+            System.out.println("Number of languages loaded: " + languageMap.size());
+        } catch (IOException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
-
     }
 
     /**
@@ -51,7 +65,7 @@ public class LanguageCodeConverter {
      */
     public String fromLanguageCode(String code) {
         // TODO Task: update this code to use your instance variable to return the correct value
-        return code;
+        return languageMap.get(code);
     }
 
     /**
@@ -60,8 +74,12 @@ public class LanguageCodeConverter {
      * @return the 2-letter code of the language
      */
     public String fromLanguage(String language) {
-        // TODO Task: update this code to use your instance variable to return the correct value
-        return language;
+        for (Map.Entry<String, String> entry : languageMap.entrySet()) {
+            if (entry.getValue().equals(language)) {
+                return entry.getKey(); // Returns the code for the language name
+            }
+        }
+        return null; // Return null if not found
     }
 
     /**
@@ -69,7 +87,6 @@ public class LanguageCodeConverter {
      * @return how many languages are included in this code converter.
      */
     public int getNumLanguages() {
-        // TODO Task: update this code to use your instance variable to return the correct value
-        return 0;
+        return languageMap.size(); // Returns the number of languages in the map
     }
 }
